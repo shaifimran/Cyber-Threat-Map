@@ -1,0 +1,11 @@
+source_ip,target_ip,attack_type,timestamp,hostname,location,os,malware_name,malware_type,signature_hash,target_hostname,target_location,target_os
+192.168.1.10,192.168.1.20,SQL Injection,2025-05-01 10:15:00,web-server-01,New York,Ubuntu 20.04,SQLSniper,Injection Tool,abc123,db-server-01,New York,PostgreSQL 14
+192.168.1.11,192.168.1.30,DDoS,2025-05-01 11:00:00,load-balancer-01,California,Debian 11,,,app-server-02,California,CentOS 7
+10.0.0.5,10.0.0.8,Ransomware,2025-05-02 09:45:00,client-03,Texas,Windows 10,WannaCry,Ransomware,wc987xyz,file-server-01,Texas,Windows Server 2019
+172.16.0.12,172.16.0.22,Cross-Site Scripting,2025-05-03 14:20:00,frontend-01,Florida,Alpine Linux,XSSHunter,Exploit Tool,xss123,backend-api-01,Florida,Node.js 18
+10.10.10.1,10.10.10.2,Phishing,2025-05-04 08:00:00,laptop-john,Illinois,Windows 11,PhishNet,Social Engineering,pfhsig999,email-gateway,Illinois,Exchange Server 2016
+172.20.10.5,172.20.10.6,Trojan Horse,2025-05-04 15:30:00,contractor-laptop,Ohio,Windows 8,DarkComet,Trojan,dc001srv,erp-server,Ohio,Oracle Linux 8
+192.168.50.2,192.168.50.3,Man-in-the-Middle,2025-05-05 12:00:00,router-edge,Georgia,OpenWrt,MitMKit,Interception Tool,mitmtool3,switch-core,Georgia,Cisco IOS
+172.31.255.1,172.31.255.5,Privilege Escalation,2025-05-06 09:10:00,dev-vm01,Oregon,Ubuntu 22.04,RootX,Privilege Tool,rootx123,prod-vm02,Oregon,Ubuntu 22.04
+10.100.0.4,10.100.0.9,Brute Force,2025-05-06 21:00:00,scanner01,Nevada,Kali Linux,Hydra,Password Cracker,hydrahash9,admin-vm01,Nevada,Windows Server 2022
+192.0.2.1,192.0.2.2,Zero-Day Exploit,2025-05-07 18:30:00,unknown-node,Unknown,Linux,ZDExploit,Zero-Day,zday2025,target-host-01,Unknown,Linux
