@@ -24,7 +24,7 @@ A hybrid application that ingests raw cyber-attack logs into **PostgreSQL** and 
 
 ```bash
 git clone https://github.com/shaifimran/Cyber-Threat-Map.git
-cd cyber-threat-map
+cd Cyber-Threat-Map
 python3 -m venv venv
 source venv/bin/activate      # Windows: venv\Scripts\activate
 pip install -r requirements.txt
