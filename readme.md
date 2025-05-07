@@ -66,22 +66,12 @@ AGENS_CONN = {
   "port":     5455,
   "dbname":   "agens",
   "user":     "postgres",
-  "password": "agens"
+  "password": "your_password"
 }
 GRAPH_PATH = "threat_graph"
 ```
 
-## Step 3 — Initialize Schemas & Graph
-
-```bash
-# 1) PostgreSQL schema & tables
-python db/setup_postgres.py
-
-# 2) AgensGraph path, VLABELs & ELABELs
-python db/setup_graph.py
-```
-
-## Step 4 — Ingest Logs & Build Graph
+## Step 3 — Ingest Logs, Initialize Schema & Build Graph
 
 Place your CSV logs in `data/sample_logs.csv`, then:
 
@@ -121,8 +111,6 @@ cyber-threat-map/
 │   └── setup_graph.py      # Creates graph path & labels in AgensGraph
 ├── data/
 │   └── sample_logs.csv     # CSV of sample logs to ingest
-├── docs/
-│   └── agviewer.png        # Screenshot of AgensGraph Viewer
 ├── logs/
 │   └── log_processor.py    # Reads CSV, inserts into PG then AgensGraph
 ├── scripts/
