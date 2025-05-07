@@ -1,4 +1,8 @@
 import csv
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from db.setup_postgres import create_schema_and_tables
 from db.setup_graph import setup_graph_schema
 from scripts.insert_data_pg import insert_data_postgres

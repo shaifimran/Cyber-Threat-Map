@@ -1,9 +1,21 @@
+# db/config.py
+
+# PostgreSQL configuration (used for logs)
 POSTGRES = {
-    'host': 'localhost',
-    'port': '5432',
-    'database': 'cyberdb',
-    'user': 'youruser',
-    'password': 'yourpassword'
+    "host": "localhost",
+    "port": 5432,
+    "dbname": "cyber_logs",
+    "user": "postgres",
+    "password": "your_password"
 }
 
-AGENS = POSTGRES  # Same as PostgreSQL, since AgensGraph extends PostgreSQL
+# AgensGraph configuration (used for graph modeling)
+AGENS = {
+    "host": "localhost",
+    "port": 5455,
+    "database": "agens",
+    "user": "agens",
+    "password": "your_password",
+}
+
+GRAPH_PATH = "threat_graph"

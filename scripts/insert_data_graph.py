@@ -1,138 +1,138 @@
 # scripts/insert_data_graph.py
 
 import psycopg2
-import agensgraph                        # registers AGType support
-from db.config import AGENS
+import agensgraph                  # registers Vertex/Edge/Path support
+from db.config import AGENS, GRAPH_PATH
 
 def insert_data_graph(row):
     """
     Insert one log row into AgensGraph:
-    - MERGE Device nodes (source & target)
-    - MERGE Malware node (if any)
-    - CREATE one Attack node
-    - CREATE INITIATED, TARGETED, USED edges
+      1) connect(**AGENS_CONN)
+      2) SET graph_path = GRAPH_PATH
+      3) MERGE / CREATE nodes & relationships
     """
     conn = None
     cur = None
     try:
+        # 1) open connection
         conn = psycopg2.connect(**AGENS)
         cur = conn.cursor()
 
-        # ensure correct graph
-        cur.execute(f"SET graph_path = {AGENS['graph_path']};")
+        # 2) switch to the proper graph
+        cur.execute(f"SET graph_path = {GRAPH_PATH};")
 
-        # 1) MERGE source Device
+        # 3) MERGE source Device
         cur.execute(
             """
-            MERGE (d:Device {ip: $ip})
+            MERGE (d:Device {ip: %s})
             ON CREATE SET
-              d.hostname   = $hostname,
-              d.location   = $location,
-              d.os         = $os;
+              d.hostname = %s,
+              d.location = %s,
+              d.os       = %s;
             """,
-            {
-                "ip": row["source_ip"],
-                "hostname": row["hostname"],
-                "location": row["location"],
-                "os": row["os"]
-            }
+            (
+                row["source_ip"],
+                row["hostname"],
+                row["location"],
+                row["os"]
+            )
         )
 
-        # 2) MERGE target Device
+        # 4) MERGE target Device
         cur.execute(
             """
-            MERGE (t:Device {ip: $ip})
+            MERGE (t:Device {ip: %s})
             ON CREATE SET
-              t.hostname   = $hostname,
-              t.location   = $location,
-              t.os         = $os;
+              t.hostname = %s,
+              t.location = %s,
+              t.os       = %s;
             """,
-            {
-                "ip": row["target_ip"],
-                "hostname": row.get("target_hostname", ""),
-                "location": row.get("target_location", ""),
-                "os": row.get("target_os", "")
-            }
+            (
+                row["target_ip"],
+                row.get("target_hostname", ""),
+                row.get("target_location", ""),
+                row.get("target_os", "")
+            )
         )
 
-        # 3) MERGE Malware (if provided)
+        # 5) MERGE Malware (if any)
         if row.get("malware_name"):
             cur.execute(
                 """
-                MERGE (m:Malware {name: $name})
+                MERGE (m:Malware {name: %s})
                 ON CREATE SET
-                  m.type           = $type,
-                  m.signature_hash = $sig;
+                  m.type           = %s,
+                  m.signature_hash = %s;
                 """,
-                {
-                    "name": row["malware_name"],
-                    "type": row.get("malware_type", ""),
-                    "sig":  row.get("signature_hash", "")
-                }
+                (
+                    row["malware_name"],
+                    row.get("malware_type", ""),
+                    row.get("signature_hash", "")
+                )
             )
 
-        # 4) CREATE Attack node
+        # 6) CREATE Attack node
         cur.execute(
             """
             CREATE (a:Attack {
-              attack_type: $atype,
-              timestamp:   $ts
+                attack_type: %s,
+                timestamp:   %s
             });
             """,
-            {
-                "atype": row["attack_type"],
-                "ts":     row["timestamp"]
-            }
+            (
+                row["attack_type"],
+                row["timestamp"]
+            )
         )
 
-        # 5) Link source Device → Attack
+        # 7) INITIATED edge
         cur.execute(
             """
-            MATCH (d:Device {ip: $src}), (a:Attack {timestamp: $ts, attack_type: $atype})
+            MATCH (d:Device {ip: %s}), (a:Attack {attack_type: %s, timestamp: %s})
             CREATE (d)-[:INITIATED]->(a);
             """,
-            {
-                "src":   row["source_ip"],
-                "ts":    row["timestamp"],
-                "atype": row["attack_type"]
-            }
+            (
+                row["source_ip"],
+                row["attack_type"],
+                row["timestamp"]
+            )
         )
 
-        # 6) Link target Device → Attack
+        # 8) TARGETED edge
         cur.execute(
             """
-            MATCH (t:Device {ip: $tgt}), (a:Attack {timestamp: $ts, attack_type: $atype})
+            MATCH (t:Device {ip: %s}), (a:Attack {attack_type: %s, timestamp: %s})
             CREATE (t)-[:TARGETED]->(a);
             """,
-            {
-                "tgt":   row["target_ip"],
-                "ts":    row["timestamp"],
-                "atype": row["attack_type"]
-            }
+            (
+                row["target_ip"],
+                row["attack_type"],
+                row["timestamp"]
+            )
         )
 
-        # 7) Link Attack → Malware (if provided)
+        # 9) USED edge (if malware)
         if row.get("malware_name"):
             cur.execute(
                 """
-                MATCH (a:Attack {timestamp: $ts, attack_type: $atype}),
-                      (m:Malware {name: $name})
+                MATCH (a:Attack {attack_type: %s, timestamp: %s}),
+                      (m:Malware {name: %s})
                 CREATE (a)-[:USED]->(m);
                 """,
-                {
-                    "ts":    row["timestamp"],
-                    "atype": row["attack_type"],
-                    "name":  row["malware_name"]
-                }
+                (
+                    row["attack_type"],
+                    row["timestamp"],
+                    row["malware_name"]
+                )
             )
 
         conn.commit()
-        print(f"[AgensGraph] Created graph entities for attack {row['attack_type']}")
+        print(f"[AgensGraph] Graph data inserted for {row['attack_type']}")
 
     except Exception as e:
         if conn:
             conn.rollback()
-        print(f"[AgensGraph] Failed to insert graph data for {row['attack_type']}: {e}")
+        print(f"[AgensGraph] Insert failed for {row['attack_type']}: {e}")
 
     finally:
         if cur:

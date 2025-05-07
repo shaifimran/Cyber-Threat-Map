@@ -2,11 +2,10 @@
 
 import psycopg2
 import agensgraph      # registers Vertex/Edge/Path types with psycopg2
-from config import AGENS
+from db.config import AGENS,GRAPH_PATH
 
-GRAPH_PATH = AGENS.get("graph_path", "cyber_graph")
 
-def setup_agens_graph():
+def setup_graph_schema():
     """
     Create an AgensGraph graph path and all required VLABELs/ELABELs.
     Uses the agensgraph-python driver extension (AGType support).
@@ -54,4 +53,4 @@ def setup_agens_graph():
             conn.close()
 
 if __name__ == "__main__":
-    setup_agens_graph()
+    setup_graph_schema()

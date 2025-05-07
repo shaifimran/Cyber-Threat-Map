@@ -1,5 +1,5 @@
 import psycopg2
-from config import POSTGRES
+from db.config import POSTGRES
 
 def create_schema_and_tables():
     """Create 'cyber' schema and necessary tables in PostgreSQL."""
@@ -13,7 +13,7 @@ def create_schema_and_tables():
         # Device table
         cur.execute("""
             CREATE TABLE IF NOT EXISTS cyber.devices (
-                ip TEXT PRIMARY KEY,
+                ip TEXT PRIMARY KEY UNIQUE,
                 hostname TEXT,
                 location TEXT,
                 os TEXT
@@ -24,7 +24,7 @@ def create_schema_and_tables():
         cur.execute("""
             CREATE TABLE IF NOT EXISTS cyber.malware (
                 id SERIAL PRIMARY KEY,
-                name TEXT NOT NULL,
+                name TEXT NOT NULL UNIQUE,
                 type TEXT,
                 signature_hash TEXT
             );
