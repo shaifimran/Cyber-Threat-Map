@@ -23,7 +23,7 @@ A hybrid application that ingests raw cyber-attack logs into **PostgreSQL** and 
 ## Step 1 — Clone & Install
 
 ```bash
-git clone https://github.com/shaifimran/cyber-threat-map.git
+git clone https://github.com/shaifimran/Cyber-Threat-Map.git
 cd cyber-threat-map
 python3 -m venv venv
 source venv/bin/activate      # Windows: venv\Scripts\activate
