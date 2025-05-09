@@ -66,12 +66,22 @@ AGENS_CONN = {
   "port":     5455,
   "dbname":   "agens",
   "user":     "postgres",
-  "password": "your_password"
+  "password": "agens"
 }
 GRAPH_PATH = "threat_graph"
 ```
 
-## Step 3 — Ingest Logs, Initialize Schema & Build Graph
+## Step 3 — Initialize Schemas & Graph
+
+```bash
+# 1) PostgreSQL schema & tables
+python db/setup_postgres.py
+
+# 2) AgensGraph path, VLABELs & ELABELs
+python db/setup_graph.py
+```
+
+## Step 4 — Ingest Logs & Build Graph
 
 Place your CSV logs in `data/sample_logs.csv`, then:
 
