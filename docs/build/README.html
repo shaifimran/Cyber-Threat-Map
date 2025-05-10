@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Cyber Threat Map &#8212; Cyber-Threat-Map 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Welcome to Cyber Threat Map’s documentation!" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="cyber-threat-map">
+<h1>Cyber Threat Map<a class="headerlink" href="#cyber-threat-map" title="Link to this heading">¶</a></h1>
+<p>A hybrid application that ingests raw cyber-attack logs into <strong>PostgreSQL</strong> and models their relationships in <strong>AgensGraph</strong> for graph-based analysis and visualization.</p>
+<section id="features">
+<h2>Features<a class="headerlink" href="#features" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong>Structured storage</strong> of logs (IPs, timestamps, attack types, malware) in PostgreSQL</p></li>
+<li><p><strong>Graph modeling</strong> of Devices, Attacks, Malware in AgensGraph</p></li>
+<li><p>Automated <strong>Python scripts</strong> for schema &amp; graph setup, data ingestion, and relationship building</p></li>
+<li><p><strong>AgensGraph Viewer</strong> screenshot included for quick inspection</p></li>
+</ul>
+</section>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading">¶</a></h2>
+<ol class="arabic">
+<li><p><strong>Python 3.8+</strong></p></li>
+<li><p><strong>PostgreSQL 12+</strong></p></li>
+<li><p><strong>AgensGraph</strong> (v2.x)</p>
+<ul>
+<li><p>Native install: follow the <a class="reference external" href="https://github.com/skaiworldwide-oss/agensgraph">AgensGraph docs</a></p></li>
+<li><p><strong>Or via Docker</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>run<span class="w"> </span>--name<span class="w"> </span>agensgraph<span class="w"> </span>-p<span class="w"> </span><span class="m">5455</span>:5432<span class="w"> </span>-e<span class="w"> </span><span class="nv">POSTGRES_USER</span><span class="o">=</span>postgres<span class="w"> </span>-e<span class="w"> </span><span class="nv">POSTGRES_PASSWORD</span><span class="o">=</span>agens<span class="w"> </span>-e<span class="w"> </span><span class="nv">POSTGRES_DB</span><span class="o">=</span>agens<span class="w"> </span>-d<span class="w"> </span>skaiworldwide/agensgraph
+</pre></div>
+</div>
+</li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="step-1-clone-install">
+<h2>Step 1 — Clone &amp; Install<a class="headerlink" href="#step-1-clone-install" title="Link to this heading">¶</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/shaifimran/cyber-threat-map.git
+<span class="nb">cd</span><span class="w"> </span>cyber-threat-map
+python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>venv
+<span class="nb">source</span><span class="w"> </span>venv/bin/activate<span class="w">      </span><span class="c1"># Windows: venv\Scripts\activate</span>
+pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+</pre></div>
+</div>
+</section>
+<section id="step-2-configure-databases">
+<h2>Step 2 — Configure Databases<a class="headerlink" href="#step-2-configure-databases" title="Link to this heading">¶</a></h2>
+<section id="postgresql-setup">
+<h3>2.1 PostgreSQL Setup<a class="headerlink" href="#postgresql-setup" title="Link to this heading">¶</a></h3>
+<p>Start your PostgreSQL server.</p>
+<p>Create a database for logs:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">CREATE</span><span class="w"> </span><span class="k">DATABASE</span><span class="w"> </span><span class="n">cyber_logs</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Edit <code class="docutils literal notranslate"><span class="pre">db/config.py</span></code> → <code class="docutils literal notranslate"><span class="pre">POSTGRES</span></code> dictionary:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">POSTGRES</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="s2">&quot;host&quot;</span><span class="p">:</span>     <span class="s2">&quot;localhost&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;port&quot;</span><span class="p">:</span>     <span class="mi">5432</span><span class="p">,</span>
+  <span class="s2">&quot;dbname&quot;</span><span class="p">:</span>   <span class="s2">&quot;cyber_logs&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;user&quot;</span><span class="p">:</span>     <span class="s2">&quot;your_pg_user&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;password&quot;</span><span class="p">:</span> <span class="s2">&quot;your_pg_password&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="agensgraph-setup">
+<h3>2.2 AgensGraph Setup<a class="headerlink" href="#agensgraph-setup" title="Link to this heading">¶</a></h3>
+<p>Start AgensGraph (native or Docker).</p>
+<p>Edit <code class="docutils literal notranslate"><span class="pre">db/config.py</span></code> → <code class="docutils literal notranslate"><span class="pre">AGENS</span></code> and <code class="docutils literal notranslate"><span class="pre">GRAPH_PATH</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">AGENS_CONN</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="s2">&quot;host&quot;</span><span class="p">:</span>     <span class="s2">&quot;localhost&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;port&quot;</span><span class="p">:</span>     <span class="mi">5455</span><span class="p">,</span>
+  <span class="s2">&quot;dbname&quot;</span><span class="p">:</span>   <span class="s2">&quot;agens&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;user&quot;</span><span class="p">:</span>     <span class="s2">&quot;postgres&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;password&quot;</span><span class="p">:</span> <span class="s2">&quot;agens&quot;</span>
+<span class="p">}</span>
+<span class="n">GRAPH_PATH</span> <span class="o">=</span> <span class="s2">&quot;threat_graph&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="step-3-initialize-schemas-graph">
+<h2>Step 3 — Initialize Schemas &amp; Graph<a class="headerlink" href="#step-3-initialize-schemas-graph" title="Link to this heading">¶</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1) PostgreSQL schema &amp; tables</span>
+python<span class="w"> </span>db/setup_postgres.py
+
+<span class="c1"># 2) AgensGraph path, VLABELs &amp; ELABELs</span>
+python<span class="w"> </span>db/setup_graph.py
+</pre></div>
+</div>
+</section>
+<section id="step-4-ingest-logs-build-graph">
+<h2>Step 4 — Ingest Logs &amp; Build Graph<a class="headerlink" href="#step-4-ingest-logs-build-graph" title="Link to this heading">¶</a></h2>
+<p>Place your CSV logs in <code class="docutils literal notranslate"><span class="pre">data/sample_logs.csv</span></code>, then:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>logs/log_processor.py
+</pre></div>
+</div>
+<p>This will, for each row:</p>
+<ul class="simple">
+<li><p>Insert devices, malware, attacks into PostgreSQL</p></li>
+<li><p>On success, insert corresponding nodes &amp; relationships into AgensGraph</p></li>
+</ul>
+</section>
+<section id="step-5-visualize-in-agensgraph-viewer">
+<h2>Step 5 — Visualize in AgensGraph Viewer<a class="headerlink" href="#step-5-visualize-in-agensgraph-viewer" title="Link to this heading">¶</a></h2>
+<p>Open AgensGraph Viewer.</p>
+<p>Select the <code class="docutils literal notranslate"><span class="pre">threat_graph</span></code> graph path.</p>
+<p>Run a sample query:</p>
+<div class="highlight-cypher notranslate"><div class="highlight"><pre><span></span><span class="k">MATCH</span><span class="w"> </span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="o">-[</span><span class="n">r</span><span class="p">:</span><span class="n">used</span><span class="o">]-&gt;</span><span class="p">(</span><span class="n">m</span><span class="p">:</span><span class="n">Malware</span><span class="p">)</span>
+<span class="k">RETURN</span><span class="w"> </span><span class="p">*</span>
+</pre></div>
+</div>
+<p>Inspect the graph:</p>
+<p>![AgensGraph Viewer](<img alt="alt text" src="_images/image.png" />)</p>
+</section>
+<section id="project-structure">
+<h2>Project Structure<a class="headerlink" href="#project-structure" title="Link to this heading">¶</a></h2>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>cyber-threat-map/
+├── db/
+│   ├── config.py           # Edit POSTGRES &amp; AGENS/GRAPH_PATH here
+│   ├── setup_postgres.py   # Creates PostgreSQL schema &amp; tables
+│   └── setup_graph.py      # Creates graph path &amp; labels in AgensGraph
+├── data/
+│   └── sample_logs.csv     # CSV of sample logs to ingest
+├── docs/
+│   └── agviewer.png        # Screenshot of AgensGraph Viewer
+├── logs/
+│   └── log_processor.py    # Reads CSV, inserts into PG then AgensGraph
+├── scripts/
+│   ├── insert_data_pg.py   # Inserts devices, malware, attacks into PG
+│   └── insert_data_graph.py# Inserts nodes &amp; edges into AgensGraph
+├── requirements.txt        # psycopg2-binary, agensgraph, python-dotenv, etc.
+└── README.md
+</pre></div>
+</div>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Cyber-Threat-Map</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Cyber Threat Map</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#features">Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-1-clone-install">Step 1 — Clone &amp; Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-2-configure-databases">Step 2 — Configure Databases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-3-initialize-schemas-graph">Step 3 — Initialize Schemas &amp; Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-4-ingest-logs-build-graph">Step 4 — Ingest Logs &amp; Build Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-5-visualize-in-agensgraph-viewer">Step 5 — Visualize in AgensGraph Viewer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#project-structure">Project Structure</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to Cyber Threat Map’s documentation!</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Muhammad Shaif Imran.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/README.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
