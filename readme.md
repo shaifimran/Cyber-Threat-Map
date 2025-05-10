@@ -23,8 +23,8 @@ A hybrid application that ingests raw cyber-attack logs into **PostgreSQL** and 
 ## Step 1 — Clone & Install
 
 ```bash
-git clone https://github.com/shaifimran/cyber-threat-map.git
-cd cyber-threat-map
+git clone https://github.com/shaifimran/Cyber-Threat-Map.git
+cd Cyber-Threat-Map
 python3 -m venv venv
 source venv/bin/activate      # Windows: venv\Scripts\activate
 pip install -r requirements.txt
@@ -121,8 +121,6 @@ cyber-threat-map/
 │   └── setup_graph.py      # Creates graph path & labels in AgensGraph
 ├── data/
 │   └── sample_logs.csv     # CSV of sample logs to ingest
-├── docs/
-│   └── agviewer.png        # Screenshot of AgensGraph Viewer
 ├── logs/
 │   └── log_processor.py    # Reads CSV, inserts into PG then AgensGraph
 ├── scripts/
