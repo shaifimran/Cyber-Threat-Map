@@ -61,12 +61,12 @@ Start AgensGraph (native or Docker).
 Edit `db/config.py` → `AGENS` and `GRAPH_PATH`:
 
 ```python
-AGENS_CONN = {
+AGENS = {
   "host":     "localhost",
   "port":     5455,
   "dbname":   "agens",
   "user":     "postgres",
-  "password": "agens"
+  "password": "your_pass"
 }
 GRAPH_PATH = "threat_graph"
 ```
